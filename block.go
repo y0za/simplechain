@@ -29,7 +29,7 @@ func NextBlock(prev Block, data []byte) Block {
 
 // CheckHash verify whether hash is collect
 func (b Block) CheckHash() bool {
-	return b.caluculateHash() == b.Hash
+	return b.calculateHash() == b.Hash
 }
 
 func (b Block) calculateHash() string {
