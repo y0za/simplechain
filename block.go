@@ -10,7 +10,7 @@ import (
 type Block struct {
 	Index        int
 	PreviousHash string
-	Timestamp    time.Time
+	Timestamp    int64
 	Data         []byte
 	Hash         string
 }
@@ -20,7 +20,7 @@ func NextBlock(prev Block, data []byte) Block {
 	b := Block{
 		Index:        prev.Index + 1,
 		PreviousHash: prev.Hash,
-		Timestamp:    time.Now(),
+		Timestamp:    time.Now().Unix(),
 		Data:         data,
 	}
 	b.Hash = b.calculateHash()
@@ -33,7 +33,7 @@ func (b Block) CheckHash() bool {
 }
 
 func (b Block) calculateHash() string {
-	chank := fmt.Sprintf("%d%s%d%s", b.Index, b.PreviousHash, b.Timestamp.Unix(), b.Data)
+	chank := fmt.Sprintf("%d%s%d%s", b.Index, b.PreviousHash, b.Timestamp, b.Data)
 	hash := sha256.Sum256([]byte(chank))
 	return fmt.Sprintf("%x", hash)
 }
