@@ -35,5 +35,5 @@ func (b Block) CheckHash() bool {
 func (b Block) calculateHash() string {
 	chank := fmt.Sprintf("%d%s%d%s", b.Index, b.PreviousHash, b.Timestamp.Unix(), b.Data)
 	hash := sha256.Sum256([]byte(chank))
-	return string(hash)
+	return fmt.Sprintf("%x", hash)
 }
