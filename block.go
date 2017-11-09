@@ -17,19 +17,23 @@ type Block struct {
 
 // NextBlock create new block from previous block and data
 func NextBlock(prev Block, data []byte) Block {
-	b := Block{
-		Index:        prev.Index + 1,
-		PreviousHash: prev.Hash,
-		Timestamp:    time.Now().Unix(),
-		Data:         data,
-	}
-	b.Hash = b.calculateHash()
-	return b
+	return nextBlockWithTimestamp(prev, data, time.Now().Unix())
 }
 
 // CheckHash verify whether hash is collect
 func (b Block) CheckHash() bool {
 	return b.calculateHash() == b.Hash
+}
+
+func nextBlockWithTimestamp(prev Block, data []byte, timestamp int64) Block {
+	b := Block{
+		Index:        prev.Index + 1,
+		PreviousHash: prev.Hash,
+		Timestamp:    timestamp,
+		Data:         data,
+	}
+	b.Hash = b.calculateHash()
+	return b
 }
 
 func (b Block) calculateHash() string {
