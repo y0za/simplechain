@@ -23,6 +23,21 @@ func (bc *BlockChain) LatestBlock() *Block {
 	return &bc.chain[l-1]
 }
 
+// AddBlock check block and append it to the end of the chain
+func (bc *BlockChain) AddBlock(b Block) error {
+	if bc.chain == nil {
+		bc.chain = []Block{}
+	}
+
+	err := checkNewBlock(b, bc.LatestBlock())
+	if err != nil {
+		return err
+	}
+
+	bc.chain = append(bc.chain, b)
+	return nil
+}
+
 func checkNewBlock(next Block, prev *Block) error {
 	if !next.CheckHash() {
 		return fmt.Errorf("invalid block hash")
