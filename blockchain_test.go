@@ -131,13 +131,13 @@ func TestCheckNewBlock(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
+	for i, tt := range tests {
 		err := checkNewBlock(tt.next, tt.prev)
 		if tt.expectErr && err == nil {
-			t.Error("expected error, actual nil")
+			t.Errorf("case %d expected error, actual nil", i)
 		}
 		if !tt.expectErr && err != nil {
-			t.Errorf("expected no error, actual error '%s'", err)
+			t.Errorf("case %d expected no error, actual error '%s'", i, err)
 		}
 	}
 }
