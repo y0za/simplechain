@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type BlockChain struct {
 	chain []Block
 }
@@ -19,4 +21,22 @@ func (bc *BlockChain) LatestBlock() *Block {
 	}
 
 	return &bc.chain[l-1]
+}
+
+func checkNewBlock(next Block, prev *Block) error {
+	if !next.CheckHash() {
+		return fmt.Errorf("invalid block hash")
+	}
+
+	if prev == nil {
+		return nil
+	}
+
+	if next.Index != prev.Index+1 {
+		return fmt.Errorf("unexpected block index")
+	}
+	if next.PreviousHash != prev.Hash {
+		return fmt.Errorf("invalid block previous hash")
+	}
+	return nil
 }
