@@ -2,14 +2,17 @@ package main
 
 import "fmt"
 
+// BlockChain have multiple blocks
 type BlockChain struct {
 	chain []Block
 }
 
+// NewBlockChain create blockchain from some blocks
 func NewBlockChain(chain ...Block) *BlockChain {
 	return &BlockChain{chain}
 }
 
+// LatestBlock return last block in the blockchain
 func (bc *BlockChain) LatestBlock() *Block {
 	if bc.chain == nil {
 		return nil
