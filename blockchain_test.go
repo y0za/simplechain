@@ -98,6 +98,61 @@ func TestAddBlock(t *testing.T) {
 	}
 }
 
+func TestCheckChain(t *testing.T) {
+	tests := []struct {
+		bc        BlockChain
+		genesis   Block
+		expectErr bool
+	}{
+		{
+			BlockChain{nil},
+			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			true,
+		},
+		{
+			BlockChain{[]Block{}},
+			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			true,
+		},
+		{
+			*NewBlockChain(Block{1, "prevhash1", 100, []byte("not genesis"), "hash1"}),
+			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			true,
+		},
+		{
+			*NewBlockChain(
+				Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+				Block{2, "hash1", 200, []byte("block1"), "invalid hash"},
+			),
+			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			true,
+		},
+		{
+			*NewBlockChain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
+			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			false,
+		},
+		{
+			*NewBlockChain(
+				Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+				nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
+			),
+			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			false,
+		},
+	}
+
+	for i, tt := range tests {
+		err := tt.bc.CheckChain(tt.genesis)
+		if tt.expectErr && err == nil {
+			t.Errorf("case %d expected error, actual nil", i)
+		}
+		if !tt.expectErr && err != nil {
+			t.Errorf("case %d expected no error, actual error '%s'", i, err)
+		}
+	}
+}
+
 func TestCheckNewBlock(t *testing.T) {
 	tests := []struct {
 		next      Block

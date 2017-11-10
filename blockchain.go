@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 // BlockChain have multiple blocks
 type BlockChain struct {
@@ -38,6 +41,29 @@ func (bc *BlockChain) AddBlock(b Block) error {
 	}
 
 	bc.chain = append(bc.chain, b)
+	return nil
+}
+
+// CheckChain verify whether all blocks are collect and linked
+func (bc BlockChain) CheckChain(genesis Block) error {
+	if bc.chain == nil || len(bc.chain) == 0 {
+		return fmt.Errorf("must have 1 or more blocks")
+	}
+
+	if !reflect.DeepEqual(bc.chain[0], genesis) {
+		return fmt.Errorf("invalid genesis block")
+	}
+
+	if len(bc.chain) == 1 {
+		return nil
+	}
+
+	for i := 1; i < len(bc.chain); i++ {
+		err := checkNewBlock(bc.chain[i], &bc.chain[i-1])
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
