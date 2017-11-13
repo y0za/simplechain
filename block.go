@@ -8,11 +8,11 @@ import (
 
 // Block is core data structure of blockchain
 type Block struct {
-	Index        int
-	PreviousHash string
-	Timestamp    int64
-	Data         []byte
-	Hash         string
+	Index        int    `json:"index"`
+	PreviousHash string `json:"previousHash"`
+	Timestamp    int64  `json:"timestamp"`
+	Data         []byte `json:"data"`
+	Hash         string `json:"hash"`
 }
 
 // NextBlock create new block from previous block and data
