@@ -6,16 +6,16 @@ import (
 )
 
 func TestLatestBlock(t *testing.T) {
-	var bc *BlockChain
+	var bc *Blockchain
 	var expected *Block
 
-	bc = &BlockChain{nil}
+	bc = &Blockchain{nil}
 	expected = nil
 	if bc.LatestBlock() != expected {
 		t.Errorf("expected nil, actual not nil")
 	}
 
-	bc = &BlockChain{[]Block{}}
+	bc = &Blockchain{[]Block{}}
 	expected = nil
 	if bc.LatestBlock() != expected {
 		t.Errorf("expected nil, actual not nil")
@@ -25,7 +25,7 @@ func TestLatestBlock(t *testing.T) {
 		Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
 		Block{2, "prevhash2", 200, []byte("block2"), "hash2"},
 	}
-	bc = NewBlockChain(chain...)
+	bc = NewBlockchain(chain...)
 	expected = &chain[1]
 	if bc.LatestBlock() != expected {
 		t.Errorf("unexpected bloack")
@@ -34,49 +34,49 @@ func TestLatestBlock(t *testing.T) {
 
 func TestAddBlock(t *testing.T) {
 	tests := []struct {
-		bc        *BlockChain
+		bc        *Blockchain
 		b         Block
-		expected  *BlockChain
+		expected  *Blockchain
 		expectErr bool
 	}{
 		{
-			NewBlockChain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
+			NewBlockchain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
 			Block{2, "prevhash2", 200, []byte("block2"), "hash2"},
-			NewBlockChain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
+			NewBlockchain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
 			true,
 		},
 		{
-			NewBlockChain(Block{0, "prevhash1", 100, []byte("block1"), "hash1"}),
+			NewBlockchain(Block{0, "prevhash1", 100, []byte("block1"), "hash1"}),
 			nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
-			NewBlockChain(Block{0, "prevhash1", 100, []byte("block1"), "hash1"}),
+			NewBlockchain(Block{0, "prevhash1", 100, []byte("block1"), "hash1"}),
 			true,
 		},
 		{
-			NewBlockChain(Block{0, "prevhash1", 100, []byte("block1"), "invalid hash"}),
+			NewBlockchain(Block{0, "prevhash1", 100, []byte("block1"), "invalid hash"}),
 			nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
-			NewBlockChain(Block{0, "prevhash1", 100, []byte("block1"), "invalid hash"}),
+			NewBlockchain(Block{0, "prevhash1", 100, []byte("block1"), "invalid hash"}),
 			true,
 		},
 		{
-			&BlockChain{nil},
+			&Blockchain{nil},
 			nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
-			NewBlockChain(
+			NewBlockchain(
 				nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
 			),
 			false,
 		},
 		{
-			&BlockChain{[]Block{}},
+			&Blockchain{[]Block{}},
 			nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
-			NewBlockChain(
+			NewBlockchain(
 				nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
 			),
 			false,
 		},
 		{
-			NewBlockChain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
+			NewBlockchain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
 			nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
-			NewBlockChain(
+			NewBlockchain(
 				Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
 				nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
 			),
@@ -100,27 +100,27 @@ func TestAddBlock(t *testing.T) {
 
 func TestCheckChain(t *testing.T) {
 	tests := []struct {
-		bc        BlockChain
+		bc        Blockchain
 		genesis   Block
 		expectErr bool
 	}{
 		{
-			BlockChain{nil},
+			Blockchain{nil},
 			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
 			true,
 		},
 		{
-			BlockChain{[]Block{}},
+			Blockchain{[]Block{}},
 			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
 			true,
 		},
 		{
-			*NewBlockChain(Block{1, "prevhash1", 100, []byte("not genesis"), "hash1"}),
+			*NewBlockchain(Block{1, "prevhash1", 100, []byte("not genesis"), "hash1"}),
 			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
 			true,
 		},
 		{
-			*NewBlockChain(
+			*NewBlockchain(
 				Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
 				Block{2, "hash1", 200, []byte("block1"), "invalid hash"},
 			),
@@ -128,12 +128,12 @@ func TestCheckChain(t *testing.T) {
 			true,
 		},
 		{
-			*NewBlockChain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
+			*NewBlockchain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
 			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
 			false,
 		},
 		{
-			*NewBlockChain(
+			*NewBlockchain(
 				Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
 				nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
 			),

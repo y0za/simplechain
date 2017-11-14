@@ -5,18 +5,18 @@ import (
 	"reflect"
 )
 
-// BlockChain have multiple blocks
-type BlockChain struct {
+// Blockchain have multiple blocks
+type Blockchain struct {
 	chain []Block
 }
 
-// NewBlockChain create blockchain from some blocks
-func NewBlockChain(chain ...Block) *BlockChain {
-	return &BlockChain{chain}
+// NewBlockchain create blockchain from some blocks
+func NewBlockchain(chain ...Block) *Blockchain {
+	return &Blockchain{chain}
 }
 
 // LatestBlock return last block in the blockchain
-func (bc *BlockChain) LatestBlock() *Block {
+func (bc *Blockchain) LatestBlock() *Block {
 	if bc.chain == nil {
 		return nil
 	}
@@ -30,7 +30,7 @@ func (bc *BlockChain) LatestBlock() *Block {
 }
 
 // AddBlock check block and append it to the end of the chain
-func (bc *BlockChain) AddBlock(b Block) error {
+func (bc *Blockchain) AddBlock(b Block) error {
 	if bc.chain == nil {
 		bc.chain = []Block{}
 	}
@@ -45,7 +45,7 @@ func (bc *BlockChain) AddBlock(b Block) error {
 }
 
 // CheckChain verify whether all blocks are collect and linked
-func (bc BlockChain) CheckChain(genesis Block) error {
+func (bc Blockchain) CheckChain(genesis Block) error {
 	if bc.chain == nil || len(bc.chain) == 0 {
 		return fmt.Errorf("must have 1 or more blocks")
 	}
