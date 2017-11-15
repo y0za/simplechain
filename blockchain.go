@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"reflect"
 )
 
@@ -52,7 +52,7 @@ func (bc *Blockchain) ReplaceBlocks(blocks []Block, genesis Block) error {
 	}
 
 	if len(blocks) <= len(bc.chain) {
-		return fmt.Errorf("new blocks length must be longer than current")
+		return errors.New("new blocks length must be longer than current")
 	}
 
 	bc.chain = blocks
@@ -62,11 +62,11 @@ func (bc *Blockchain) ReplaceBlocks(blocks []Block, genesis Block) error {
 // CheckBlocks verify whether all blocks are collect and linked
 func CheckBlocks(blocks []Block, genesis Block) error {
 	if blocks == nil || len(blocks) == 0 {
-		return fmt.Errorf("must have 1 or more blocks")
+		return errors.New("must have 1 or more blocks")
 	}
 
 	if !reflect.DeepEqual(blocks[0], genesis) {
-		return fmt.Errorf("invalid genesis block")
+		return errors.New("invalid genesis block")
 	}
 
 	if len(blocks) == 1 {
@@ -84,7 +84,7 @@ func CheckBlocks(blocks []Block, genesis Block) error {
 
 func checkNewBlock(next Block, prev *Block) error {
 	if !next.CheckHash() {
-		return fmt.Errorf("invalid block hash")
+		return errors.New("invalid block hash")
 	}
 
 	if prev == nil {
@@ -92,10 +92,10 @@ func checkNewBlock(next Block, prev *Block) error {
 	}
 
 	if next.Index != prev.Index+1 {
-		return fmt.Errorf("unexpected block index")
+		return errors.New("unexpected block index")
 	}
 	if next.PreviousHash != prev.Hash {
-		return fmt.Errorf("invalid block previous hash")
+		return errors.New("invalid block previous hash")
 	}
 	return nil
 }
