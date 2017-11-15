@@ -143,7 +143,7 @@ func TestCheckChain(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		err := tt.bc.CheckChain(tt.genesis)
+		err := tt.bc.CheckBlocks(tt.genesis)
 		if tt.expectErr && err == nil {
 			t.Errorf("case %d expected error, actual nil", i)
 		}

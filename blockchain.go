@@ -44,8 +44,8 @@ func (bc *Blockchain) AddBlock(b Block) error {
 	return nil
 }
 
-// CheckChain verify whether all blocks are collect and linked
-func (bc Blockchain) CheckChain(genesis Block) error {
+// CheckBlocks verify whether all blocks are collect and linked
+func (bc Blockchain) CheckBlocks(genesis Block) error {
 	if bc.chain == nil || len(bc.chain) == 0 {
 		return fmt.Errorf("must have 1 or more blocks")
 	}
