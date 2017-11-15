@@ -44,6 +44,21 @@ func (bc *Blockchain) AddBlock(b Block) error {
 	return nil
 }
 
+// ReplaceBlocks change blockchain data to new blocks
+func (bc *Blockchain) ReplaceBlocks(blocks []Block, genesis Block) error {
+	err := CheckBlocks(blocks, genesis)
+	if err != nil {
+		return err
+	}
+
+	if len(blocks) <= len(bc.chain) {
+		return fmt.Errorf("new blocks length must be longer than current")
+	}
+
+	bc.chain = blocks
+	return nil
+}
+
 // CheckBlocks verify whether all blocks are collect and linked
 func CheckBlocks(blocks []Block, genesis Block) error {
 	if blocks == nil || len(blocks) == 0 {

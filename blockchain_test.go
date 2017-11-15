@@ -153,6 +153,57 @@ func TestCheckBlocks(t *testing.T) {
 	}
 }
 
+func TestReplaceBlocks(t *testing.T) {
+	tests := []struct {
+		bc        *Blockchain
+		blocks    []Block
+		genesis   Block
+		expectErr bool
+	}{
+		{
+			NewBlockchain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
+			[]Block{
+				Block{1, "prevhash1", 100, []byte("not genesis"), "hash1"},
+				nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
+			},
+			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			true,
+		},
+		{
+			NewBlockchain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
+			[]Block{
+				Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			},
+			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			true,
+		},
+		{
+			NewBlockchain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
+			[]Block{
+				Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+				nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
+			},
+			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			false,
+		},
+	}
+
+	for i, tt := range tests {
+		err := tt.bc.ReplaceBlocks(tt.blocks, tt.genesis)
+		if tt.expectErr && err == nil {
+			t.Errorf("case %d expected error, actual nil", i)
+			return
+		}
+		if !tt.expectErr && err != nil {
+			t.Errorf("case %d expected no error, actual error '%s'", i, err)
+			return
+		}
+		if !tt.expectErr && !reflect.DeepEqual(tt.bc.chain, tt.blocks) {
+			t.Errorf("case %d expected blockchain is replaced with new blocks, actual not", i)
+		}
+	}
+}
+
 func TestCheckNewBlock(t *testing.T) {
 	tests := []struct {
 		next      Block
