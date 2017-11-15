@@ -25,6 +25,16 @@ func (b Block) CheckHash() bool {
 	return b.calculateHash() == b.Hash
 }
 
+func GenesisBlock() Block {
+	return Block{
+		Index:        1,
+		PreviousHash: "0",
+		Timestamp:    1465154705,
+		Data:         []byte("my genesis block!!"),
+		Hash:         "816534932c2b7154836da6afc367695e6337db8a921823784c14378abed4f7d7",
+	}
+}
+
 func nextBlockWithTimestamp(prev Block, data []byte, timestamp int64) Block {
 	b := Block{
 		Index:        prev.Index + 1,
