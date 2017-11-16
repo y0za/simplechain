@@ -41,6 +41,8 @@ type Client struct {
 
 	// Buffered channel of outbound messages.
 	send chan []byte
+
+	bc *Blockchain
 }
 
 // readPump pumps messages from the websocket connection to the hub.
