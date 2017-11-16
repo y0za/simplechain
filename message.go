@@ -5,9 +5,9 @@ import "encoding/json"
 type MessageType int
 
 const (
-	QUERY_LATEST MessageType = iota
-	QUERY_ALL
-	RESPONSE_BLOCKCHAIN
+	QueryLatest MessageType = iota
+	QueryAll
+	ResponseBlockchain
 )
 
 // Message is sent through websocket

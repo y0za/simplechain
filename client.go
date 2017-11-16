@@ -124,22 +124,22 @@ func (c *Client) writePump() {
 
 func (c *Client) handleMessage(message Message) {
 	switch message.Type {
-	case QUERY_LATEST:
+	case QueryLatest:
 		b := c.bc.LatestBlock()
-		data, err := blocksMessageJSON([]Block{*b}, QUERY_LATEST)
+		data, err := blocksMessageJSON([]Block{*b}, QueryLatest)
 		if err != nil {
 			log.Printf("error: %v\n", err)
 			return
 		}
 		c.send <- data
-	case QUERY_ALL:
-		data, err := blocksMessageJSON(c.bc.chain, QUERY_ALL)
+	case QueryAll:
+		data, err := blocksMessageJSON(c.bc.chain, QueryAll)
 		if err != nil {
 			log.Printf("error: %v\n", err)
 			return
 		}
 		c.send <- data
-	case RESPONSE_BLOCKCHAIN:
+	case ResponseBlockchain:
 		c.handleBlockchainResponse(message)
 	}
 }
@@ -172,7 +172,7 @@ func (c *Client) handleBlockchainResponse(message Message) {
 			log.Printf("error: %v\n", err)
 			return
 		}
-		data, err := blocksMessageJSON([]Block{lbr}, RESPONSE_BLOCKCHAIN)
+		data, err := blocksMessageJSON([]Block{lbr}, ResponseBlockchain)
 		if err != nil {
 			log.Printf("error: %v\n", err)
 			return
@@ -184,7 +184,7 @@ func (c *Client) handleBlockchainResponse(message Message) {
 	// new block is two or more next
 	// the received node has to query all blocks from other node
 	if len(blocks) == 1 {
-		data, err := blocksMessageJSON([]Block{lbr}, QUERY_ALL)
+		data, err := blocksMessageJSON([]Block{lbr}, QueryAll)
 		if err != nil {
 			log.Printf("error: %v\n", err)
 			return
@@ -198,7 +198,7 @@ func (c *Client) handleBlockchainResponse(message Message) {
 	if err != nil {
 		log.Printf("error: %v\n", err)
 	}
-	data, err := blocksMessageJSON([]Block{lbr}, RESPONSE_BLOCKCHAIN)
+	data, err := blocksMessageJSON([]Block{lbr}, ResponseBlockchain)
 	if err != nil {
 		log.Printf("error: %v\n", err)
 		return
