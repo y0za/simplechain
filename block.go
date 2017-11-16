@@ -25,6 +25,8 @@ func (b Block) CheckHash() bool {
 	return b.calculateHash() == b.Hash
 }
 
+// GenesisBlock return first block of blockchain
+// this is compatible with naivechain
 func GenesisBlock() Block {
 	return Block{
 		Index:        1,
