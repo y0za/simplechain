@@ -13,7 +13,7 @@ const (
 // Message is sent through websocket
 type Message struct {
 	Type MessageType `json:"type"`
-	Data []byte      `json:"data"`
+	Data string      `json:"data"`
 }
 
 func blocksMessageJSON(blocks []Block, mt MessageType) ([]byte, error) {
@@ -24,7 +24,7 @@ func blocksMessageJSON(blocks []Block, mt MessageType) ([]byte, error) {
 
 	m := Message{
 		Type: mt,
-		Data: bd,
+		Data: string(bd),
 	}
 	return json.Marshal(m)
 }

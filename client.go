@@ -140,7 +140,7 @@ func (c *Client) handleMessage(message Message) {
 
 func (c *Client) handleBlockchainResponse(message Message) {
 	var blocks []Block
-	err := json.Unmarshal(message.Data, &blocks)
+	err := json.Unmarshal([]byte(message.Data), &blocks)
 	if err != nil {
 		log.Printf("error: %v\n", err)
 	}
