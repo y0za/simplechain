@@ -66,14 +66,20 @@ func (c *Client) readPump() {
 	})
 
 	for {
-		_, message, err := c.conn.ReadMessage()
+		_, data, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
 				log.Printf("error: %v", err)
 			}
 			break
 		}
-		c.hub.broadcast <- message
+
+		var message Message
+		err = json.Unmarshal(data, &message)
+		if err != nil {
+			log.Printf("error: received invalid message %s", data)
+		}
+		c.handleMessage(message)
 	}
 }
 
