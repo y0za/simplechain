@@ -6,8 +6,10 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -111,6 +113,80 @@ func (c *Client) writePump() {
 				return
 			}
 		}
+	}
+}
+
+func (c *Client) handleMessage(message Message) {
+	switch message.Type {
+	case QUERY_LATEST:
+		b := c.bc.LatestBlock()
+		data, err := blocksMessageJSON([]Block{*b}, QUERY_LATEST)
+		if err != nil {
+			log.Printf("error: %v\n", err)
+			return
+		}
+		c.send <- data
+	case QUERY_ALL:
+		data, err := blocksMessageJSON(c.bc.chain, QUERY_ALL)
+		if err != nil {
+			log.Printf("error: %v\n", err)
+			return
+		}
+		c.send <- data
+	case RESPONSE_BLOCKCHAIN:
+		c.handleBlockchainResponse(message)
+	}
+}
+
+func (c *Client) handleBlockchainResponse(message Message) {
+	var blocks []Block
+	err := json.Unmarshal(message.Data, &blocks)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+	}
+	if len(blocks) == 0 {
+		log.Println("error: received blockchain is empty")
+	}
+
+	sort.Slice(blocks, func(l, r int) bool {
+		return blocks[l].Index < blocks[r].Index
+	})
+
+	lbr := blocks[len(blocks)-1]
+	lbh := c.bc.LatestBlock()
+
+	if lbr.Index <= lbh.Index {
+		return
+	}
+
+	if lbr.PreviousHash == lbh.Hash {
+		err = c.bc.AddBlock(lbr)
+		if err != nil {
+			log.Printf("error: %v\n", err)
+			return
+		}
+		data, err := blocksMessageJSON([]Block{lbr}, RESPONSE_BLOCKCHAIN)
+		if err != nil {
+			log.Printf("error: %v\n", err)
+			return
+		}
+		c.send <- data
+		return
+	}
+
+	if len(blocks) == 1 {
+		data, err := blocksMessageJSON([]Block{lbr}, QUERY_ALL)
+		if err != nil {
+			log.Printf("error: %v\n", err)
+			return
+		}
+		c.send <- data
+		return
+	}
+
+	err = c.bc.ReplaceBlocks(blocks, GenesisBlock())
+	if err != nil {
+		log.Printf("error: %v\n", err)
 	}
 }
 
