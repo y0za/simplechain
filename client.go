@@ -159,6 +159,7 @@ func (c *Client) handleBlockchainResponse(message Message) {
 		return
 	}
 
+	// add new hash to blockchain
 	if lbr.PreviousHash == lbh.Hash {
 		err = c.bc.AddBlock(lbr)
 		if err != nil {
@@ -170,24 +171,33 @@ func (c *Client) handleBlockchainResponse(message Message) {
 			log.Printf("error: %v\n", err)
 			return
 		}
-		c.send <- data
+		c.hub.broadcast <- data
 		return
 	}
 
+	// new block is two or more next
+	// the received node has to query all blocks from other node
 	if len(blocks) == 1 {
 		data, err := blocksMessageJSON([]Block{lbr}, QUERY_ALL)
 		if err != nil {
 			log.Printf("error: %v\n", err)
 			return
 		}
-		c.send <- data
+		c.hub.broadcast <- data
 		return
 	}
 
+	// replace blockchain data
 	err = c.bc.ReplaceBlocks(blocks, GenesisBlock())
 	if err != nil {
 		log.Printf("error: %v\n", err)
 	}
+	data, err := blocksMessageJSON([]Block{lbr}, RESPONSE_BLOCKCHAIN)
+	if err != nil {
+		log.Printf("error: %v\n", err)
+		return
+	}
+	c.hub.broadcast <- data
 }
 
 // serveWs handles websocket requests from the peer.
