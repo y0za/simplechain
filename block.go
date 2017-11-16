@@ -11,12 +11,12 @@ type Block struct {
 	Index        int    `json:"index"`
 	PreviousHash string `json:"previousHash"`
 	Timestamp    int64  `json:"timestamp"`
-	Data         []byte `json:"data"`
+	Data         string `json:"data"`
 	Hash         string `json:"hash"`
 }
 
 // NextBlock create new block from previous block and data
-func NextBlock(prev Block, data []byte) Block {
+func NextBlock(prev Block, data string) Block {
 	return nextBlockWithTimestamp(prev, data, time.Now().Unix())
 }
 
@@ -30,12 +30,12 @@ func GenesisBlock() Block {
 		Index:        1,
 		PreviousHash: "0",
 		Timestamp:    1465154705,
-		Data:         []byte("my genesis block!!"),
+		Data:         "my genesis block!!",
 		Hash:         "816534932c2b7154836da6afc367695e6337db8a921823784c14378abed4f7d7",
 	}
 }
 
-func nextBlockWithTimestamp(prev Block, data []byte, timestamp int64) Block {
+func nextBlockWithTimestamp(prev Block, data string, timestamp int64) Block {
 	b := Block{
 		Index:        prev.Index + 1,
 		PreviousHash: prev.Hash,

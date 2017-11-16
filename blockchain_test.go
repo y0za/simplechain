@@ -22,8 +22,8 @@ func TestLatestBlock(t *testing.T) {
 	}
 
 	chain := []Block{
-		Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
-		Block{2, "prevhash2", 200, []byte("block2"), "hash2"},
+		Block{1, "prevhash1", 100, "block1", "hash1"},
+		Block{2, "prevhash2", 200, "block2", "hash2"},
 	}
 	bc = NewBlockchain(chain...)
 	expected = &chain[1]
@@ -40,45 +40,45 @@ func TestAddBlock(t *testing.T) {
 		expectErr bool
 	}{
 		{
-			NewBlockchain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
-			Block{2, "prevhash2", 200, []byte("block2"), "hash2"},
-			NewBlockchain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
+			NewBlockchain(Block{1, "prevhash1", 100, "block1", "hash1"}),
+			Block{2, "prevhash2", 200, "block2", "hash2"},
+			NewBlockchain(Block{1, "prevhash1", 100, "block1", "hash1"}),
 			true,
 		},
 		{
-			NewBlockchain(Block{0, "prevhash1", 100, []byte("block1"), "hash1"}),
-			nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
-			NewBlockchain(Block{0, "prevhash1", 100, []byte("block1"), "hash1"}),
+			NewBlockchain(Block{0, "prevhash1", 100, "block1", "hash1"}),
+			nextBlockWithTimestamp(Block{1, "prevhash1", 100, "block1", "hash1"}, "block2", 200),
+			NewBlockchain(Block{0, "prevhash1", 100, "block1", "hash1"}),
 			true,
 		},
 		{
-			NewBlockchain(Block{0, "prevhash1", 100, []byte("block1"), "invalid hash"}),
-			nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
-			NewBlockchain(Block{0, "prevhash1", 100, []byte("block1"), "invalid hash"}),
+			NewBlockchain(Block{0, "prevhash1", 100, "block1", "invalid hash"}),
+			nextBlockWithTimestamp(Block{1, "prevhash1", 100, "block1", "hash1"}, "block2", 200),
+			NewBlockchain(Block{0, "prevhash1", 100, "block1", "invalid hash"}),
 			true,
 		},
 		{
 			&Blockchain{nil},
-			nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
+			nextBlockWithTimestamp(Block{1, "prevhash1", 100, "block1", "hash1"}, "block2", 200),
 			NewBlockchain(
-				nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
+				nextBlockWithTimestamp(Block{1, "prevhash1", 100, "block1", "hash1"}, "block2", 200),
 			),
 			false,
 		},
 		{
 			&Blockchain{[]Block{}},
-			nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
+			nextBlockWithTimestamp(Block{1, "prevhash1", 100, "block1", "hash1"}, "block2", 200),
 			NewBlockchain(
-				nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
+				nextBlockWithTimestamp(Block{1, "prevhash1", 100, "block1", "hash1"}, "block2", 200),
 			),
 			false,
 		},
 		{
-			NewBlockchain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
-			nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
+			NewBlockchain(Block{1, "prevhash1", 100, "block1", "hash1"}),
+			nextBlockWithTimestamp(Block{1, "prevhash1", 100, "block1", "hash1"}, "block2", 200),
 			NewBlockchain(
-				Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
-				nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
+				Block{1, "prevhash1", 100, "block1", "hash1"},
+				nextBlockWithTimestamp(Block{1, "prevhash1", 100, "block1", "hash1"}, "block2", 200),
 			),
 			false,
 		},
@@ -106,38 +106,38 @@ func TestCheckBlocks(t *testing.T) {
 	}{
 		{
 			nil,
-			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			Block{1, "prevhash1", 100, "block1", "hash1"},
 			true,
 		},
 		{
 			[]Block{},
-			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			Block{1, "prevhash1", 100, "block1", "hash1"},
 			true,
 		},
 		{
-			[]Block{Block{1, "prevhash1", 100, []byte("not genesis"), "hash1"}},
-			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			[]Block{Block{1, "prevhash1", 100, "not genesis", "hash1"}},
+			Block{1, "prevhash1", 100, "block1", "hash1"},
 			true,
 		},
 		{
 			[]Block{
-				Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
-				Block{2, "hash1", 200, []byte("block1"), "invalid hash"},
+				Block{1, "prevhash1", 100, "block1", "hash1"},
+				Block{2, "hash1", 200, "block1", "invalid hash"},
 			},
-			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			Block{1, "prevhash1", 100, "block1", "hash1"},
 			true,
 		},
 		{
-			[]Block{Block{1, "prevhash1", 100, []byte("block1"), "hash1"}},
-			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			[]Block{Block{1, "prevhash1", 100, "block1", "hash1"}},
+			Block{1, "prevhash1", 100, "block1", "hash1"},
 			false,
 		},
 		{
 			[]Block{
-				Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
-				nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
+				Block{1, "prevhash1", 100, "block1", "hash1"},
+				nextBlockWithTimestamp(Block{1, "prevhash1", 100, "block1", "hash1"}, "block2", 200),
 			},
-			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			Block{1, "prevhash1", 100, "block1", "hash1"},
 			false,
 		},
 	}
@@ -161,29 +161,29 @@ func TestReplaceBlocks(t *testing.T) {
 		expectErr bool
 	}{
 		{
-			NewBlockchain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
+			NewBlockchain(Block{1, "prevhash1", 100, "block1", "hash1"}),
 			[]Block{
-				Block{1, "prevhash1", 100, []byte("not genesis"), "hash1"},
-				nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
+				Block{1, "prevhash1", 100, "not genesis", "hash1"},
+				nextBlockWithTimestamp(Block{1, "prevhash1", 100, "block1", "hash1"}, "block2", 200),
 			},
-			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			Block{1, "prevhash1", 100, "block1", "hash1"},
 			true,
 		},
 		{
-			NewBlockchain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
+			NewBlockchain(Block{1, "prevhash1", 100, "block1", "hash1"}),
 			[]Block{
-				Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+				Block{1, "prevhash1", 100, "block1", "hash1"},
 			},
-			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			Block{1, "prevhash1", 100, "block1", "hash1"},
 			true,
 		},
 		{
-			NewBlockchain(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}),
+			NewBlockchain(Block{1, "prevhash1", 100, "block1", "hash1"}),
 			[]Block{
-				Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
-				nextBlockWithTimestamp(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2"), 200),
+				Block{1, "prevhash1", 100, "block1", "hash1"},
+				nextBlockWithTimestamp(Block{1, "prevhash1", 100, "block1", "hash1"}, "block2", 200),
 			},
-			Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			Block{1, "prevhash1", 100, "block1", "hash1"},
 			false,
 		},
 	}
@@ -211,28 +211,28 @@ func TestCheckNewBlock(t *testing.T) {
 		expectErr bool
 	}{
 		{
-			Block{2, "prevhash2", 200, []byte("block2"), "hash2"},
-			&Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			Block{2, "prevhash2", 200, "block2", "hash2"},
+			&Block{1, "prevhash1", 100, "block1", "hash1"},
 			true,
 		},
 		{
-			NextBlock(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2")),
-			&Block{0, "prevhash1", 100, []byte("block1"), "hash1"},
+			NextBlock(Block{1, "prevhash1", 100, "block1", "hash1"}, "block2"),
+			&Block{0, "prevhash1", 100, "block1", "hash1"},
 			true,
 		},
 		{
-			NextBlock(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2")),
-			&Block{1, "prevhash1", 100, []byte("block1"), "invalid hash"},
+			NextBlock(Block{1, "prevhash1", 100, "block1", "hash1"}, "block2"),
+			&Block{1, "prevhash1", 100, "block1", "invalid hash"},
 			true,
 		},
 		{
-			NextBlock(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2")),
+			NextBlock(Block{1, "prevhash1", 100, "block1", "hash1"}, "block2"),
 			nil,
 			false,
 		},
 		{
-			NextBlock(Block{1, "prevhash1", 100, []byte("block1"), "hash1"}, []byte("block2")),
-			&Block{1, "prevhash1", 100, []byte("block1"), "hash1"},
+			NextBlock(Block{1, "prevhash1", 100, "block1", "hash1"}, "block2"),
+			&Block{1, "prevhash1", 100, "block1", "hash1"},
 			false,
 		},
 	}
