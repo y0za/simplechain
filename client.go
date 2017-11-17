@@ -207,13 +207,18 @@ func (c *Client) handleBlockchainResponse(message Message) {
 }
 
 // serveWs handles websocket requests from the peer.
-func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+func serveWs(hub *Hub, bc *Blockchain, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+	client := &Client{
+		hub:  hub,
+		conn: conn,
+		send: make(chan []byte, 256),
+		bc:   bc,
+	}
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
