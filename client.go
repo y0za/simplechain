@@ -213,6 +213,21 @@ func serveWs(hub *Hub, bc *Blockchain, w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
+
+	initializeClient(conn, hub, bc)
+}
+
+func connectToPeer(hub *Hub, bc *Blockchain, url string) {
+	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	initializeClient(conn, hub, bc)
+}
+
+func initializeClient(conn *websocket.Conn, hub *Hub, bc *Blockchain) {
 	client := &Client{
 		hub:  hub,
 		conn: conn,
@@ -225,24 +240,10 @@ func serveWs(hub *Hub, bc *Blockchain, w http.ResponseWriter, r *http.Request) {
 	// new goroutines.
 	go client.writePump()
 	go client.readPump()
-}
 
-func connectToPeer(hub *Hub, bc *Blockchain, url string) {
-	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
-
-	if err != nil {
-		log.Println(err)
-		return
+	m := Message{
+		Type: QueryLatest,
 	}
-
-	client := &Client{
-		hub:  hub,
-		conn: conn,
-		send: make(chan []byte, 256),
-		bc:   bc,
-	}
-	client.hub.register <- client
-
-	go client.writePump()
-	go client.readPump()
+	data, _ := json.Marshal(m)
+	client.send <- data
 }
