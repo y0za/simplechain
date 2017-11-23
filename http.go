@@ -7,7 +7,8 @@ import (
 
 // Env inject dependencies to http handler
 type Env struct {
-	bc *Blockchain
+	bc  *Blockchain
+	hub *Hub
 }
 
 func (e *Env) GetBlocks(w http.ResponseWriter, r *http.Request) {
