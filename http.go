@@ -53,8 +53,8 @@ func (e *Env) MineBlock(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e *Env) GetPeers(w http.ResponseWriter, r *http.Request) {
-	peers := make([]string, 0, len(e.hub.clients))
-	for c, _ := range e.hub.clients {
+	peers := make([]string, 0, len(e.hub.peers))
+	for c, _ := range e.hub.peers {
 		peers = append(peers, c.conn.RemoteAddr().String())
 	}
 

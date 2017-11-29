@@ -5,48 +5,48 @@
 
 package main
 
-// Hub maintains the set of active clients and broadcasts messages to the
-// clients.
+// Hub maintains the set of active peers and broadcasts messages to the
+// peers.
 type Hub struct {
-	// Registered clients.
-	clients map[*Client]bool
+	// Registered peers.
+	peers map[*Peer]bool
 
-	// Inbound messages from the clients.
+	// Inbound messages from the peers.
 	broadcast chan []byte
 
-	// Register requests from the clients.
-	register chan *Client
+	// Register requests from the peers.
+	register chan *Peer
 
-	// Unregister requests from clients.
-	unregister chan *Client
+	// Unregister requests from peers.
+	unregister chan *Peer
 }
 
 func newHub() *Hub {
 	return &Hub{
 		broadcast:  make(chan []byte),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
+		register:   make(chan *Peer),
+		unregister: make(chan *Peer),
+		peers:      make(map[*Peer]bool),
 	}
 }
 
 func (h *Hub) run() {
 	for {
 		select {
-		case client := <-h.register:
-			h.clients[client] = true
-		case client := <-h.unregister:
-			if _, ok := h.clients[client]; ok {
-				delete(h.clients, client)
-				close(client.send)
+		case peer := <-h.register:
+			h.peers[peer] = true
+		case peer := <-h.unregister:
+			if _, ok := h.peers[peer]; ok {
+				delete(h.peers, peer)
+				close(peer.send)
 			}
 		case message := <-h.broadcast:
-			for client := range h.clients {
+			for peer := range h.peers {
 				select {
-				case client.send <- message:
+				case peer.send <- message:
 				default:
-					close(client.send)
-					delete(h.clients, client)
+					close(peer.send)
+					delete(h.peers, peer)
 				}
 			}
 		}

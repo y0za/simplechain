@@ -34,8 +34,8 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-// Client is a middleman between the websocket connection and the hub.
-type Client struct {
+// Peer is a middleman between the websocket connection and the hub.
+type Peer struct {
 	hub *Hub
 
 	// The websocket connection.
@@ -52,7 +52,7 @@ type Client struct {
 // The application runs readPump in a per-connection goroutine. The application
 // ensures that there is at most one reader on a connection by executing all
 // reads from this goroutine.
-func (c *Client) readPump() {
+func (c *Peer) readPump() {
 	defer func() {
 		c.hub.unregister <- c
 		c.conn.Close()
@@ -88,7 +88,7 @@ func (c *Client) readPump() {
 // A goroutine running writePump is started for each connection. The
 // application ensures that there is at most one writer to a connection by
 // executing all writes from this goroutine.
-func (c *Client) writePump() {
+func (c *Peer) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
@@ -122,7 +122,7 @@ func (c *Client) writePump() {
 	}
 }
 
-func (c *Client) handleMessage(message Message) {
+func (c *Peer) handleMessage(message Message) {
 	switch message.Type {
 	case QueryLatest:
 		b := c.bc.LatestBlock()
@@ -144,7 +144,7 @@ func (c *Client) handleMessage(message Message) {
 	}
 }
 
-func (c *Client) handleBlockchainResponse(message Message) {
+func (c *Peer) handleBlockchainResponse(message Message) {
 	var blocks []Block
 	err := json.Unmarshal([]byte(message.Data), &blocks)
 	if err != nil {
@@ -214,7 +214,7 @@ func serveWs(hub *Hub, bc *Blockchain, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	initializeClient(conn, hub, bc)
+	initializePeer(conn, hub, bc)
 }
 
 func connectToPeer(hub *Hub, bc *Blockchain, url string) {
@@ -224,26 +224,26 @@ func connectToPeer(hub *Hub, bc *Blockchain, url string) {
 		return
 	}
 
-	initializeClient(conn, hub, bc)
+	initializePeer(conn, hub, bc)
 }
 
-func initializeClient(conn *websocket.Conn, hub *Hub, bc *Blockchain) {
-	client := &Client{
+func initializePeer(conn *websocket.Conn, hub *Hub, bc *Blockchain) {
+	peer := &Peer{
 		hub:  hub,
 		conn: conn,
 		send: make(chan []byte, 256),
 		bc:   bc,
 	}
-	client.hub.register <- client
+	peer.hub.register <- peer
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.
-	go client.writePump()
-	go client.readPump()
+	go peer.writePump()
+	go peer.readPump()
 
 	m := Message{
 		Type: QueryLatest,
 	}
 	data, _ := json.Marshal(m)
-	client.send <- data
+	peer.send <- data
 }
