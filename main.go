@@ -60,3 +60,10 @@ func newP2PServer(env *Env, addr string) *http.Server {
 		Addr: addr,
 	}
 }
+
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
