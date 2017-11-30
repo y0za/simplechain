@@ -16,8 +16,11 @@ func main() {
 	go hub.run()
 	env := &Env{bc, hub}
 
-	api := newApiServer(env, ":3001")
-	p2p := newApiServer(env, ":6001")
+	httpPort := getEnv("HTTP_PORT", "3001")
+	p2pPort := getEnv("P2P_PORT", "6001")
+
+	api := newApiServer(env, ":"+httpPort)
+	p2p := newApiServer(env, ":"+p2pPort)
 
 	go func() {
 		if err := api.ListenAndServe(); err != http.ErrServerClosed {
