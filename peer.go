@@ -217,14 +217,21 @@ func serveWs(hub *Hub, bc *Blockchain, w http.ResponseWriter, r *http.Request) {
 	initializePeer(conn, hub, bc)
 }
 
-func connectToPeer(hub *Hub, bc *Blockchain, url string) {
-	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
+func connectToPeer(hub *Hub, bc *Blockchain, peerURL chan string) {
+	for {
+		url, ok := <-peerURL
+		if !ok {
+			return
+		}
 
-	initializePeer(conn, hub, bc)
+		conn, _, err := websocket.DefaultDialer.Dial(url, nil)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		initializePeer(conn, hub, bc)
+	}
 }
 
 func initializePeer(conn *websocket.Conn, hub *Hub, bc *Blockchain) {
