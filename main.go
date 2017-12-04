@@ -14,7 +14,8 @@ func main() {
 	bc := NewBlockchain(GenesisBlock())
 	hub := newHub()
 	go hub.run()
-	env := &Env{bc, hub}
+	peerURL := make(chan string)
+	env := &Env{bc, hub, peerURL}
 
 	httpPort := getEnv("HTTP_PORT", "3001")
 	p2pPort := getEnv("P2P_PORT", "6001")
@@ -32,6 +33,7 @@ func main() {
 			log.Print(err)
 		}
 	}()
+	go connectToPeer(hub, bc, peerURL)
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
@@ -40,6 +42,7 @@ func main() {
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	api.Shutdown(ctx)
 	p2p.Shutdown(ctx)
+	close(peerURL)
 }
 
 func newApiServer(env *Env, addr string) *http.Server {

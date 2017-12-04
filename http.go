@@ -7,8 +7,9 @@ import (
 
 // Env inject dependencies to http handler
 type Env struct {
-	bc  *Blockchain
-	hub *Hub
+	bc      *Blockchain
+	hub     *Hub
+	peerURL chan string
 }
 
 // peerJSON used in AddPeer for reading request body
@@ -73,5 +74,5 @@ func (e *Env) AddPeer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	connectToPeer(e.hub, e.bc, pj.Peer)
+	e.peerURL <- pj.Peer
 }
