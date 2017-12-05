@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -19,6 +20,8 @@ func main() {
 
 	httpPort := getEnv("HTTP_PORT", "3001")
 	p2pPort := getEnv("P2P_PORT", "6001")
+	peersRaw := getEnv("PEERS", "")
+	peers := strings.Split(peersRaw, ",")
 
 	api := newApiServer(env, ":"+httpPort)
 	p2p := newApiServer(env, ":"+p2pPort)
@@ -34,6 +37,12 @@ func main() {
 		}
 	}()
 	go connectToPeer(hub, bc, peerURL)
+
+	for _, p := range peers {
+		if p != "" {
+			peerURL <- p
+		}
+	}
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
