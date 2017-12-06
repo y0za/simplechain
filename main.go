@@ -24,7 +24,7 @@ func main() {
 	peers := strings.Split(peersRaw, ",")
 
 	api := newApiServer(env, ":"+httpPort)
-	p2p := newApiServer(env, ":"+p2pPort)
+	p2p := newP2PServer(env, ":"+p2pPort)
 
 	go func() {
 		if err := api.ListenAndServe(); err != http.ErrServerClosed {
