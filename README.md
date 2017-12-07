@@ -10,12 +10,12 @@ $ curl -X GET http://localhost:3001/blocks
 
 ### POST `/mineBlock`
 ```console
-$ curl -X POST --data '{"data":"some data"}' http://127.0.0.1:3001/mineBlock
+$ curl -X POST --data '{"data":"some data"}' http://localhost:3001/mineBlock
 ```
 
 ### GET `/peers`
 ```console
-$ curl -X GET http://127.0.0.1:3002/peers
+$ curl -X GET http://localhost:3002/peers
 ["[::1]:6001"]
 ```
 
