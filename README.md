@@ -1,5 +1,11 @@
 # simplechain
 A simple blockchain implementation based on [lhartikk/naivechain](https://github.com/lhartikk/naivechain).
+
+## Installation
+```console
+$ go get -u github.com/y0za/simplechain
+```
+
 ## API
 
 ### GET `/blocks`
