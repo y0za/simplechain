@@ -6,6 +6,12 @@ A simple blockchain implementation based on [lhartikk/naivechain](https://github
 $ go get -u github.com/y0za/simplechain
 ```
 
+## Running
+```console
+$ HTTP_PORT=3001 P2P_PORT=6001 simplechain
+$ HTTP_PORT=3002 P2P_PORT=6002 PEERS=ws://localhost:6001 simplechain
+```
+
 ## API
 
 ### GET `/blocks`
